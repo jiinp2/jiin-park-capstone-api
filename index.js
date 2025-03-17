@@ -12,10 +12,10 @@ const PORT = process.env.PORT || 5050;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.jpin("uploads")));
+app.use("/uploads", express.static(path.join("uploads")));
 
 // Routes
-app.use("api/upload", uploadRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/metadata", metadataRoutes);
 
 app.listen(PORT, () => {
