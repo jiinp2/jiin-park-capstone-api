@@ -2,7 +2,6 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import ExifParser from "exif-parser";
-import sharp from "sharp";
 
 const router = express.Router();
 
@@ -15,7 +14,6 @@ router.post("/", async (req, res) => {
   }
 
   // Extract metadata, array to store
-
   try {
     const metadataArray = [];
 
@@ -26,25 +24,18 @@ router.post("/", async (req, res) => {
         continue;
       }
 
-      // Convert heic to jpeg before processing
-      let convertedPath = filePath;
-      if (filePath.endsWith(".HEIC") || filePath.endsWith(".heif")) {
-        convertedPath = filePath.replace(/\.\w+$/, ".jpg");
-        await sharp(filePath).toFormat("jpeg").toFile(convertedPath);
-      }
-
       // Reading and parsing image file
-      const buffer = fs.readFileSync(convertedPath);
+      const buffer = fs.readFileSync(filePath);
       const parser = ExifParser.create(buffer);
       const metadata = parser.parse();
 
-      // Push metadata to array
+      // Store metadata
       metadataArray.push({
-        originalPath: imagePath,
-        processedPath: convertedPath,
+        imagePath,
         metadata: metadata.tags,
       });
     }
+
     // Send metadata to front-end
     res.json({ metadata: metadataArray });
   } catch (error) {
