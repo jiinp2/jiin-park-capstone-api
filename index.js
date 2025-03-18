@@ -3,8 +3,8 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 
-import uploadRoutes from "./routes/upload.js";
-import metadataRoutes from "./routes/metadata.js";
+import uploadRoutes from "./routes/upload-routes.js";
+import metadataRoutes from "./routes/metadata-routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5050;
