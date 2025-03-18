@@ -56,7 +56,7 @@ export const uploadImages = async (req, res) => {
         timestamp,
       });
     }
-    res.json({ message: "Upload successful", logId, images: insertedImages });
+    res.json({ message: "Upload successful", logId });
   } catch (error) {
     console.error("Error inserting into database:", error);
     res.status(500).json({ error: "Database insertion failed" });
