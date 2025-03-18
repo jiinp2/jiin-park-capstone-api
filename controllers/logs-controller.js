@@ -15,7 +15,7 @@ export const getLogDetails = async (req, res) => {
 
     res.json({ log: logDetails, images });
   } catch (error) {
-    console.error("Error fethching log:", error);
+    console.error("Error fetching log:", error);
     res.status(500).json({ error: "failed to fetch log details" });
   }
 };
