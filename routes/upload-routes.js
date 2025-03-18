@@ -31,4 +31,7 @@ const upload = multer({
 // Upload route
 router.post("/", upload.array("images", 8), uploadImages);
 
+// Fetch images for a specific log
+router.get("/:logId", getImagesByLogId);
+
 export default router;
