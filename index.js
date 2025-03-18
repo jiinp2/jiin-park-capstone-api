@@ -12,7 +12,10 @@ const PORT = process.env.PORT || 5050;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join("uploads")));
+app.use(express.urlencoded({ extended: true }));
+
+// Statically uploaded files
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
 app.use("/api/upload", uploadRoutes);
