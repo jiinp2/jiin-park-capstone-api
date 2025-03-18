@@ -4,7 +4,6 @@ import cors from "cors";
 import path from "path";
 
 import uploadRoutes from "./routes/upload-routes.js";
-import metadataRoutes from "./routes/metadata-routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5050;
@@ -19,7 +18,6 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
 app.use("/api/upload", uploadRoutes);
-app.use("/api/metadata", metadataRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -1,8 +1,7 @@
 import fs from "fs";
 import knex from "knex";
 import knexConfig from "../knexfile.js";
-import exifParser from "exif-parser";
-import { error } from "console";
+import ExifParser from "exif-parser";
 
 const db = knex(knexConfig);
 
@@ -16,11 +15,11 @@ export const uploadImages = async (req, res) => {
 
     for (const file of req.files) {
       const { filename, size, mimetype } = file;
-      const filePath = `./upload/${filename}`;
+      const filePath = `./uploads/${filename}`;
 
       // Extract metadata needed
       const buffer = fs.readFileSync(`./uploads/${filename}`);
-      const parser = exifParser.create(buffer);
+      const parser = ExifParser.create(buffer);
       const metadata = parser.parse();
 
       const latitude = metadata.tags.GPSLatitude || null;
@@ -41,7 +40,7 @@ export const uploadImages = async (req, res) => {
       });
 
       insertedImages.push({
-        ide: imageID,
+        id: imageID,
         filePath,
         latitude,
         longitude,
