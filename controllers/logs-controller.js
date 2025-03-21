@@ -1,8 +1,39 @@
+import { v4 as uuidv4 } from "uuid";
 import knex from "knex";
 import knexConfig from "../knexfile.js";
 
 const db = knex(knexConfig);
 
+export const saveLog = async (req, res) => {
+  try {
+    let { logId, title, coverImagePath } = req.body;
+
+    // If logId is missing, generate a UUID
+    if (!logId) {
+      logId = uuidv4();
+    }
+
+    if (!title || !coverImagePath) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    console.log("Saving log with:", { logId, title, coverImagePath });
+
+    // Insert into database
+    await db("logs").insert({
+      log_id: logId,
+      title,
+      cover_image: coverImagePath,
+    });
+
+    res.json({ message: "Log saved successfully", logId });
+  } catch (error) {
+    console.error("Error saving log:", error);
+    res.status(500).json({ error: "Database insertion failed" });
+  }
+};
+
+// Log details
 export const getLogDetails = async (req, res) => {
   try {
     const { logId } = req.params;
