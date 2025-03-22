@@ -60,9 +60,7 @@ export const saveLog = async (req, res) => {
 };
 
 // Get logs
-
 export const getAllLogs = async (req, res) => {
-  console.log("Saving new log:", req.body);
   try {
     const logs = await db("logs").select("*");
     if (!logs.length) {
@@ -73,5 +71,17 @@ export const getAllLogs = async (req, res) => {
   } catch (error) {
     console.error("Error fetching logs:", error);
     res.status(500).json({ error: "Database query failed" });
+  }
+};
+
+// Delete log
+export const deleteLog = async (req, res) => {
+  const { logId } = req.params;
+
+  try {
+    await db("images").where({ log_id: logId }).delete();
+  } catch (error) {
+    console.error("Error deleing log:", error);
+    res.status(500).json({ error: "Failed to delete log" });
   }
 };
