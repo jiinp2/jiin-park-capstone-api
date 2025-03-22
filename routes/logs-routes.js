@@ -3,6 +3,7 @@ import {
   getAllLogs,
   getLogDetails,
   saveLog,
+  deleteLog,
 } from "../controllers/logs-controller.js";
 
 const router = express.Router();
@@ -15,5 +16,8 @@ router.post("/", saveLog);
 
 // Get logs
 router.get("/", getAllLogs);
+
+// Delete logs and images
+router.delete("/:logId", deleteLog);
 
 export default router;
