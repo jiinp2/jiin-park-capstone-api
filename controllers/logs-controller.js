@@ -74,12 +74,17 @@ export const getAllLogs = async (req, res) => {
   }
 };
 
-// Delete log
+// Delete log & photos
 export const deleteLog = async (req, res) => {
   const { logId } = req.params;
 
   try {
-    await db("images").where({ log_id: logId }).delete();
+    // Delete images
+    await db("images").where({ log_id: logId }).del();
+    // Delete log
+    await db("logs").where({ log_id: logId }).del();
+
+    res.status(200).json({ message: "Log and images deleted" });
   } catch (error) {
     console.error("Error deleing log:", error);
     res.status(500).json({ error: "Failed to delete log" });
