@@ -1,5 +1,9 @@
 import express from "express";
-import { getLogDetails, saveLog } from "../controllers/logs-controller.js";
+import {
+  getAllLogs,
+  getLogDetails,
+  saveLog,
+} from "../controllers/logs-controller.js";
 
 const router = express.Router();
 
@@ -8,5 +12,8 @@ router.get("/:logId", getLogDetails);
 
 // Saving a new log
 router.post("/", saveLog);
+
+// Get logs
+router.get("/", getAllLogs);
 
 export default router;

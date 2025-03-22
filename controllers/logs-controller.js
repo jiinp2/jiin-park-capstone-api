@@ -4,6 +4,32 @@ import knexConfig from "../knexfile.js";
 
 const db = knex(knexConfig);
 
+// Log details
+export const getLogDetails = async (req, res) => {
+  try {
+    const { logId } = req.params;
+    console.log("Received logId:", logId);
+
+    if (!logId) {
+      return res.status(400).json({ error: "logId is missing" });
+    }
+
+    // Fetch log details
+    const logDetails = await db("images").where({ log_id: logId }).first();
+    console.log("Fetched logDetails:", logDetails);
+
+    // Fetch images with logId
+    const images = await db("images").where({ log_id: logId });
+    console.log("Fetched images:", images);
+
+    res.json({ log: logDetails, images });
+  } catch (error) {
+    console.error("Error fetching log:", error);
+    res.status(500).json({ error: "failed to fetch log details" });
+  }
+};
+
+// Save log
 export const saveLog = async (req, res) => {
   try {
     let { logId, title, coverImagePath } = req.body;
@@ -33,27 +59,19 @@ export const saveLog = async (req, res) => {
   }
 };
 
-// Log details
-export const getLogDetails = async (req, res) => {
-  try {
-    const { logId } = req.params;
-    console.log("Received logId:", logId);
+// Get logs
 
-    if (!logId) {
-      return res.status(400).json({ error: "logId is missing" });
+export const getAllLogs = async (req, res) => {
+  console.log("Saving new log:", req.body);
+  try {
+    const logs = await db("logs").select("*");
+    if (!logs.length) {
+      return res.status(404).json({ error: "No logs found" });
     }
 
-    // Fetch log details
-    const logDetails = await db("images").where({ log_id: logId }).first();
-    console.log("Fetched logDetails:", logDetails);
-
-    // Fetch images with logId
-    const images = await db("images").where({ log_id: logId });
-    console.log("Fetched images:", images);
-
-    res.json({ log: logDetails, images });
+    res.json({ logs });
   } catch (error) {
-    console.error("Error fetching log:", error);
-    res.status(500).json({ error: "failed to fetch log details" });
+    console.error("Error fetching logs:", error);
+    res.status(500).json({ error: "Database query failed" });
   }
 };
