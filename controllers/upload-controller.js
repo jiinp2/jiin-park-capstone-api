@@ -17,8 +17,11 @@ const generateLogTitle = (timestamps) => {
 
   const sameYear = startDate.getFullYear() === endDate.getFullYear();
   const sameMonth = startDate.getMonth() === endDate.getMonth();
+  const sameDay = startDate.toDateString() === endDate.toDateString();
 
-  if (sameMonth) {
+  if (sameDay) {
+    return `${format(startDate, "MMM d, yyyy")}`;
+  } else if (sameMonth) {
     return `${format(startDate, "MMM d")} - ${format(endDate, "d, yyyy")}`;
   } else if (sameYear) {
     return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
