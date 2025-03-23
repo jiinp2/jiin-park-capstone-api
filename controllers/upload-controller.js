@@ -4,6 +4,7 @@ import knex from "knex";
 import knexConfig from "../knexfile.js";
 import ExifParser from "exif-parser";
 import { v4 as uuidv4 } from "uuid";
+import { format } from "date-fns";
 
 const db = knex(knexConfig);
 
@@ -18,6 +19,35 @@ export const uploadImages = async (req, res) => {
     const logId = uuidv4();
     const insertedImages = [];
 
+    const timestamps = insertedImages
+      .map((img) => img.timestamp)
+      .filter(Boolean)
+      .sort((a, b) => a - b);
+
+    let title = "Untitled log";
+
+    if (timestamps.length) {
+      const startDate = new Date(timestamps[0]);
+      const endDate = new Date(timestamps[timestamps.length - 1]);
+
+      const sameYear = startDate.getFullYear() === endDate.getFullYear();
+      const sameMonth = startDate.getMonth() === endDate.getMonth();
+
+      if (sameMonth) {
+        title = `${format(startDate, "MMM d")} - ${format(endDate, "d, yyyy")}`;
+      } else if (sameYear) {
+        title = `${format(startDate, "MMM d")} - ${format(
+          endDate,
+          "MMM d, yyyy"
+        )}`;
+      } else {
+        title = `${format(startDate, "MMM d, yyyy")} - ${format(
+          endDate,
+          "MMM d, yyyy"
+        )}`;
+      }
+    }
+
     for (const file of req.files) {
       const { filename, size, mimetype } = file;
       const filePath = `/uploads/${filename}`;
@@ -28,6 +58,11 @@ export const uploadImages = async (req, res) => {
       );
       const parser = ExifParser.create(buffer);
       const metadata = parser.parse();
+      console.log(
+        "EXIF GPS:",
+        metadata.tags?.GPSLatitude,
+        metadata.tags?.GPSLongitude
+      );
 
       const latitude = metadata.tags?.GPSLatitude ?? null;
       const longitude = metadata.tags?.GPSLongitude ?? null;

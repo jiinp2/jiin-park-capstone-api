@@ -8,11 +8,7 @@ export function up(knex) {
     table.decimal("latitude", 10, 6);
     table.decimal("longitude", 10, 6);
     table.timestamp("timestamp");
-    table
-      .uuid("log_id")
-      .references("log_id")
-      .inTable("logs")
-      .onDelete("CASCADE");
+    table.uuid("log_id").notNullable();
     table.timestamp("created_at").defaultTo(knex.fn.now());
   });
 }
