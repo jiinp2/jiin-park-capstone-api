@@ -15,7 +15,7 @@ export const getLogDetails = async (req, res) => {
     }
 
     // Fetch log details
-    const logDetails = await db("images").where({ log_id: logId }).first();
+    const logDetails = await db("logs").where({ log_id: logId }).first();
     console.log("Fetched logDetails:", logDetails);
 
     // Fetch images with logId

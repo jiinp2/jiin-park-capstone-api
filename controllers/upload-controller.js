@@ -26,6 +26,7 @@ export const uploadImages = async (req, res) => {
 
     let title = "Untitled log";
 
+    // Title extracting timestamps from images
     if (timestamps.length) {
       const startDate = new Date(timestamps[0]);
       const endDate = new Date(timestamps[timestamps.length - 1]);
@@ -91,6 +92,14 @@ export const uploadImages = async (req, res) => {
         timestamp,
       });
     }
+
+    await db("logs").insert({
+      log_id: logId,
+      title,
+      cover_image: `/uploads/${req.files[0]?.filename}`,
+    });
+
+    // Response
     res.json({ message: "Upload successful", logId });
   } catch (error) {
     console.error("Error inserting into database:", error);
