@@ -31,31 +31,33 @@ export const getLogDetails = async (req, res) => {
 
 // Save log
 export const saveLog = async (req, res) => {
+  const { logId, title, coverImagePath } = req.body;
+
   try {
-    let { logId, title, coverImagePath } = req.body;
+    // Check if log already exists
+    const existingLog = await db("logs").where({ log_id: logId }).first();
 
-    // If logId is missing, generate a UUID
-    if (!logId) {
-      logId = uuidv4();
+    if (existingLog) {
+      // Update existing log
+      await db("logs").where({ log_id: logId }).update({
+        title,
+        cover_image: coverImagePath,
+      });
+
+      res.json({ message: "Log updated successfully", logId });
+    } else {
+      // Create new log
+      await db("logs").insert({
+        log_id: logId,
+        title,
+        cover_image: coverImagePath,
+      });
+
+      res.json({ message: "Log created successfully", logId });
     }
-
-    if (!title || !coverImagePath) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    console.log("Saving log with:", { logId, title, coverImagePath });
-
-    // Insert into database
-    await db("logs").insert({
-      log_id: logId,
-      title,
-      cover_image: coverImagePath,
-    });
-
-    res.json({ message: "Log saved successfully", logId });
   } catch (error) {
     console.error("Error saving log:", error);
-    res.status(500).json({ error: "Database insertion failed" });
+    res.status(500).json({ error: "Failed to save log" });
   }
 };
 

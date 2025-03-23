@@ -33,7 +33,6 @@ const generateLogTitle = (timestamps) => {
   }
 };
 
-// Upload images and store metadata
 export const uploadImages = async (req, res) => {
   console.log("Received files:", req.files);
 
@@ -42,34 +41,81 @@ export const uploadImages = async (req, res) => {
     return res.status(400).json({ error: "No files uploaded" });
   }
 
-  const logId = uuidv4();
+  let logId = uuidv4(); // Generate a new log_id
+  let existingLog = await db("logs").where({ log_id: logId }).first();
+  while (existingLog) {
+    logId = uuidv4(); // Ensure unique log_id
+    existingLog = await db("logs").where({ log_id: logId }).first();
+  }
+
   const insertedImages = [];
   const timestamps = [];
 
   try {
-    // Iterate through files and extract metadata
+    // First, extract all timestamps from files
+    for (const file of req.files) {
+      const buffer = await fs.promises.readFile(
+        path.join(process.cwd(), "uploads", file.filename)
+      );
+
+      try {
+        const parser = ExifParser.create(buffer);
+        const metadata = parser.parse();
+
+        const timestamp = metadata.tags?.DateTimeOriginal
+          ? new Date(metadata.tags.DateTimeOriginal * 1000)
+          : null;
+
+        if (timestamp) {
+          timestamps.push(timestamp);
+        }
+      } catch (exifError) {
+        console.warn(
+          `Could not extract EXIF from ${file.filename}:`,
+          exifError
+        );
+        // Continue even if EXIF extraction fails for a file
+      }
+    }
+
+    // Now generate the title with all available timestamps
+    const title = generateLogTitle(timestamps);
+
+    // Insert the log with the proper title
+    await db("logs").insert({
+      log_id: logId,
+      title,
+      cover_image: `/uploads/${req.files[0]?.filename}`,
+    });
+
+    // Now process each file and save image data
     for (const file of req.files) {
       const { filename, size, mimetype } = file;
       const filePath = `/uploads/${filename}`;
 
-      // Extract EXIF metadata
+      // Re-extract metadata for each image (or you could store it from the first pass)
       const buffer = await fs.promises.readFile(
         path.join(process.cwd(), "uploads", filename)
       );
-      const parser = ExifParser.create(buffer);
-      const metadata = parser.parse();
 
-      const latitude = metadata.tags?.GPSLatitude ?? null;
-      const longitude = metadata.tags?.GPSLongitude ?? null;
-      const timestamp = metadata.tags?.DateTimeOriginal
-        ? new Date(metadata.tags.DateTimeOriginal * 1000)
-        : null;
+      let latitude = null;
+      let longitude = null;
+      let timestamp = null;
 
-      if (timestamp) {
-        timestamps.push(timestamp);
+      try {
+        const parser = ExifParser.create(buffer);
+        const metadata = parser.parse();
+
+        latitude = metadata.tags?.GPSLatitude ?? null;
+        longitude = metadata.tags?.GPSLongitude ?? null;
+        timestamp = metadata.tags?.DateTimeOriginal
+          ? new Date(metadata.tags.DateTimeOriginal * 1000)
+          : null;
+      } catch (exifError) {
+        console.warn(`Skipping metadata for ${filename}:`, exifError);
       }
 
-      // Insert metadata
+      // Insert metadata into images table
       const [imageID] = await db("images").insert({
         log_id: logId,
         file_path: filePath,
@@ -91,18 +137,12 @@ export const uploadImages = async (req, res) => {
       });
     }
 
-    // Generate log title from timestamps
-    const title = generateLogTitle(timestamps);
-
-    // Insert the log entry (with the title and cover image)
-    await db("logs").insert({
-      log_id: logId,
-      title,
-      cover_image: `/uploads/${req.files[0]?.filename}`,
+    // Response after successful insertion
+    res.json({
+      message: "Upload successful",
+      logId,
+      title, // Include the generated title in the response
     });
-
-    // Response
-    res.json({ message: "Upload successful", logId });
   } catch (error) {
     console.error("Error inserting into database:", error);
     res.status(500).json({ error: "Database insertion failed" });
