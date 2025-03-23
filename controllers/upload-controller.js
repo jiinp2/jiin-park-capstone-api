@@ -94,7 +94,7 @@ export const uploadImages = async (req, res) => {
     // Generate log title from timestamps
     const title = generateLogTitle(timestamps);
 
-    // Insert into database
+    // Insert the log entry (with the title and cover image)
     await db("logs").insert({
       log_id: logId,
       title,
