@@ -6,11 +6,18 @@ import path from "path";
 import uploadRoutes from "./routes/upload-routes.js";
 import logsRoutes from "./routes/logs-routes.js";
 
-const app = express();
-const PORT = process.env.PORT || 5050;
-
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://focal-capstone.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
