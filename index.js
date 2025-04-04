@@ -32,6 +32,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Test route to confirm deploy + CORS
+app.get("/api/test", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.send("✅ Backend test route is live");
+});
+
 // Statically uploaded files
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
