@@ -88,7 +88,7 @@ export const deleteLog = async (req, res) => {
 
     res.status(200).json({ message: "Log and images deleted" });
   } catch (error) {
-    console.error("Error deleing log:", error);
+    console.error("Error deleting log:", error);
     res.status(500).json({ error: "Failed to delete log" });
   }
 };
