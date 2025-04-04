@@ -6,7 +6,10 @@ import path from "path";
 import uploadRoutes from "./routes/upload-routes.js";
 import logsRoutes from "./routes/logs-routes.js";
 
-// Middleware
+const app = express();
+const PORT = process.env.PORT || 5050;
+
+// CORS Middleware
 const allowedOrigins = [
   "http://localhost:5173",
   "https://focal-capstone.vercel.app",
@@ -14,7 +17,15 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
 
