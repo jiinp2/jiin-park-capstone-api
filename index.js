@@ -9,7 +9,7 @@ import logsRoutes from "./routes/logs-routes.js";
 const app = express();
 const PORT = process.env.PORT || 5050;
 
-// CORS Middleware
+// CORS Middleware (MUST be placed at the top)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://focal-capstone.vercel.app",
@@ -29,22 +29,24 @@ app.use(
   })
 );
 
+// Other middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Test route to confirm deploy + CORS
+// Test route to verify deployment and CORS header
 app.get("/api/test", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.send("✅ Backend test route is live");
 });
 
-// Statically uploaded files
+// Static files
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
 app.use("/api/upload", uploadRoutes);
 app.use("/api/logs", logsRoutes);
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
